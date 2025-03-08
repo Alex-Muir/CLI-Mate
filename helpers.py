@@ -79,68 +79,100 @@ def load_settings():
 
 
 def fetch_weather(settings):
-    """Fetch current weather from OpenWeatherMaps based on zip code"""                                                                     
+    """Fetch current weather from OpenWeatherMap based on zip code"""                                                                     
     weather_address = f"https://api.openweathermap.org/data/2.5/weather?zip={settings["zip_code"]},us&appid={settings["API_KEY"]}&units=imperial"
     r = requests.get(weather_address)                                           
     weather_dict = r.json()
-    print_weather(weather_dict)
+    weather_data_list = [weather_dict]
+    print_weather(weather_data_list)
 
-def print_weather(weather_dict):
+def fetch_forecast(settings):
+    """Fetch 5 day, 3 hour forecast from OpeWeatherMap based on zip code"""
+    forecast_address = f"https://api.openweathermap.org/data/2.5/forecast?zip={settings["zip_code"]},us&appid={settings["API_KEY"]}&units=imperial"
+    r = requests.get(forecast_address)
+    forecast_dict = r.json()
+    weather_data_list = forecast_dict['list']
+    print_weather(weather_data_list)
+
+def get_sunrise(data):
+    sys_dict = data['sys']
+    sunrise_unix_UTC = sys_dict.get('sunrise')
+    if sunrise_unix_UTC is None:
+        return None
+
+    readable_sunrise = datetime.fromtimestamp(sunrise_unix_UTC).time()
+    return readable_sunrise
+
+def get_sunset(data):                                                          
+    sys_dict = data['sys']                                                      
+    sunset_unix_UTC = sys_dict.get('sunset')                                     
+    if sunset_unix_UTC is None:                                                
+        return None                                                             
+                                                                                
+    readable_sunset = datetime.fromtimestamp(sunset_unix_UTC).time()          
+    return readable_sunset  
+
+def print_weather(weather_data_list):
     """Take relevant information from data returned by the API and print it"""
     
-    # Get weather description
-    weather_list = weather_dict['weather']
-    weather_desc = weather_list[0]['description']
+    for data in weather_data_list:
+        # Get weather description
+        weather_list = data['weather']
+        weather_desc = weather_list[0]['description']
 
-    # Get cloud coverage
-    cloud_dict = weather_dict['clouds']
-    cloud_coverage = cloud_dict['all']
+        # Get cloud coverage
+        cloud_dict = data['clouds']
+        cloud_coverage = cloud_dict['all']
 
-    # Get temp related data
-    temp_dict = weather_dict['main']
-    current_temperature = temp_dict['temp']
-    feels_like = temp_dict['feels_like']
-    min_temp = temp_dict['temp_min']
-    max_temp = temp_dict['temp_max']
+        # Get temp related data
+        temp_dict = data['main']
+        current_temperature = temp_dict['temp']
+        feels_like = temp_dict['feels_like']
+        min_temp = temp_dict['temp_min']
+        max_temp = temp_dict['temp_max']
 
-    # Get sunrise and sunset times  
-    sys_dict = weather_dict['sys']
-    sunrise_unix_UTC = sys_dict['sunrise']
-    sunset_unix_UTC = sys_dict['sunset']
-    readable_sunrise = datetime.fromtimestamp(sunrise_unix_UTC).time()
-    readable_sunset = datetime.fromtimestamp(sunset_unix_UTC).time()
+        # Get sunrise and sunset times  
+        readable_sunrise = get_sunrise(data)
+        readable_sunset = get_sunset(data)
 
-    # Get humidity and visability
-    humidity = temp_dict['humidity']
-    visibility = weather_dict['visibility']
+        # Get rainfall if available
+        rainfall = data.get('rain')
 
-    # Get wind speed and direction
-    wind_dict = weather_dict['wind']
-    wind_speed = wind_dict['speed']
-    wind_direction = wind_dict['deg']
+        # Get humidity and visability
+        humidity = temp_dict['humidity']
+        visibility = data['visibility']
+
+        # Get wind speed and direction
+        wind_dict = data['wind']
+        wind_speed = wind_dict['speed']
+        wind_direction = wind_dict['deg']
     
-    # Get time of data calculation
-    time_of_calc_unix_UTC = weather_dict['dt']
-    readable_time_of_calc = datetime.fromtimestamp(time_of_calc_unix_UTC)
+        # Get time of data calculation
+        time_of_calc_unix_UTC = data['dt']
+        readable_time_of_calc = datetime.fromtimestamp(time_of_calc_unix_UTC)
 
-    # Print everything
-    print(f"\n{'CURRENT WEATHER':>22}")
-    print("-" * 29)
+        # Print everything
+        print(f"Weather for {readable_time_of_calc}")
+        print("-" * 29)
    
-    print(f"Date: {datetime.today().date()}") 
-    print(f"Description: {weather_desc}")
-    print(f"Current Temperature: {current_temperature}")
-    print(f"Feels Like: {feels_like}")
-    print(f"Min Temperature: {min_temp}")
-    print(f"Max Temperature: {max_temp}")
-    print(f"Humidity: {humidity}%")
-    print(f"Wind Speed: {wind_speed}mph")
-    print(f"Wind Direction: {wind_direction}")
-    print(f"Cloud Coverage: {cloud_coverage}%")
-    print(f"Visibility: {visibility/1000.0}km")
-    print(f"Sunrise: {readable_sunrise}")
-    print(f"Sunset: {readable_sunset}")
-    print(f"\nTime of Data Calculation: {readable_time_of_calc}")
+        print(f"Date: {datetime.today().date()}") 
+        print(f"Description: {weather_desc}")
+        print(f"Current Temperature: {current_temperature}")
+        print(f"Feels Like: {feels_like}")
+        print(f"Min Temperature: {min_temp}")
+        print(f"Max Temperature: {max_temp}")
+        print(f"Humidity: {humidity}%")
+        print(f"Wind Speed: {wind_speed}mph")
+        print(f"Wind Direction: {wind_direction}")
+        if rainfall:
+            print(f"Rainfall: {rainfall}mm/h")
+        print(f"Cloud Coverage: {cloud_coverage}%")
+        print(f"Visibility: {visibility/1000.0}km")
+        if readable_sunrise:
+            print(f"Sunrise: {readable_sunrise}")
+        if readable_sunset:
+            print(f"Sunset: {readable_sunset}")
+        print(f"\nTime of Data Calculation: {readable_time_of_calc}")
 
-    print("-" * 29)
+        print("-" * 29)
     

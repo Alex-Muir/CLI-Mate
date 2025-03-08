@@ -18,8 +18,13 @@ def main():
             h.set_settings(settings)
         elif choice == '3':
             h.fetch_weather(settings)
+        elif choice == '4':
+            print("Choice 4")
+            h.fetch_forecast(settings)
         elif choice == '6':
             break
+        else:
+            print("INVALID INPUT")
             
 if __name__ == '__main__':
     main()
