@@ -136,7 +136,14 @@ def print_weather(weather_data_list):
         readable_sunset = get_sunset(data)
 
         # Get rainfall if available
-        rainfall = data.get('rain')
+        rainfall = None
+        rain = data.get('rain')
+        print(f"Rain Value: {rain}")
+        if rain:
+            rainfall = rain.get('1h')
+            if rainfall is None:
+                rainfall = rain.get('3h')
+            
 
         # Get humidity and visability
         humidity = temp_dict['humidity']
