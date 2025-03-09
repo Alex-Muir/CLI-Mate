@@ -7,6 +7,8 @@ FILENAME = 'settings.json'
 
 def print_menu():
     """Print user menu"""
+
+    print("\nCLI-Mate")
     print("""
     (1) Information
     (2) Settings
@@ -138,7 +140,7 @@ def print_weather(weather_data_list):
         # Get rainfall if available
         rainfall = None
         rain = data.get('rain')
-        print(f"Rain Value: {rain}")
+
         if rain:
             rainfall = rain.get('1h')
             if rainfall is None:
@@ -159,7 +161,7 @@ def print_weather(weather_data_list):
         readable_time_of_calc = datetime.fromtimestamp(time_of_calc_unix_UTC)
 
         # Print everything
-        print(f"Weather for {readable_time_of_calc}")
+        print(f"\nWeather for {readable_time_of_calc}")
         print("-" * 29)
    
         print(f"Date: {datetime.today().date()}") 
