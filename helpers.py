@@ -94,9 +94,57 @@ def fetch_forecast(settings):
     r = requests.get(forecast_address)
     forecast_dict = r.json()
     weather_data_list = forecast_dict['list']
+    initial_size = len(weather_data_list)
+    prompt = "Do you want to select a particular date?"
+    prompt += "\nEnter 'y' for yes, anything else to print all forecast data: "
+    refine_date(weather_data_list, prompt)
     print_weather(weather_data_list)
 
+
+
+def refine_date(weather_data_list, prompt):
+    """
+    Get every unique date from the list of weather data and prompt the user
+    for a particular day, or all data. Change the list of weather data in 
+    place to reflect the chosen date for the forecast.
+    """ 
+    choice = input(prompt)
+    choice_list = []
+
+    if choice.lower() == 'y':
+
+        # add each unique date to choice_list 
+        for i in range(len(weather_data_list)):
+
+            # convert the unix UTC time to a local, readable date
+            date = datetime.fromtimestamp(weather_data_list[i]['dt']).date()
+            if date not in choice_list:
+                choice_list.append(date)
+        
+        # print the menu for the date selection by the user
+        for i, time in enumerate(choice_list, start=1):
+            print(f"({i}) {choice_list[i-1]}")
+        
+        while True:
+            try:
+                choice = int(input("Enter your selection: "))
+            except ValueError:
+                print("Please enter a valid selection.")
+            else:
+                if choice > len(choice_list) or choice <= 0:
+                    print("Please enter a valid selection")
+                else:
+                    break
+        date_selected = choice_list[choice-1]
+
+        # Change list in place. Add all forecast data to the list where the date
+        # matches the user's choice
+        weather_data_list[:] = [forecast for forecast in weather_data_list if datetime.fromtimestamp(forecast['dt']).date() == date_selected]
+        print(len(weather_data_list))
+
+
 def get_sunrise(data):
+    """Get sunrise from fetched data for current weather or forecast"""
     sys_dict = data['sys']
     sunrise_unix_UTC = sys_dict.get('sunrise')
     if sunrise_unix_UTC is None:
@@ -105,7 +153,8 @@ def get_sunrise(data):
     readable_sunrise = datetime.fromtimestamp(sunrise_unix_UTC).time()
     return readable_sunrise
 
-def get_sunset(data):                                                          
+def get_sunset(data):
+    """Get sunset from fetched data for current weather or forecast"""        
     sys_dict = data['sys']                                                      
     sunset_unix_UTC = sys_dict.get('sunset')                                     
     if sunset_unix_UTC is None:                                                
