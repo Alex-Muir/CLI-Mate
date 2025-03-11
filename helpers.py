@@ -80,26 +80,67 @@ def load_settings():
     return settings
 
 
+def verify_response(status_code):
+    """
+    Verify that the response from the API is good. If it is not, print the 
+    possible reason and aid the user in correcting the problem
+    """
+
+    if status_code == 200:                                                    
+        return 200                                                        
+    elif status_code == 400:                                                  
+        print("ERROR: It is possible that some of the required parameters for " 
+              "the request are missing. Please go to settings and re-enter your "
+              "zipcode.")                                                       
+        return None                                                                  
+    elif status_code == 401:                                                  
+        print("ERROR: There is an issue with the API Key. It is either incorrect "
+              "or the key that was entered does not give access to the API for "
+              "this application. Either re-enter the key in settings, or verify "
+              "that the key you have entered gives access to OpenWeatherMap's " 
+              "Current Weather and 5 day, 3 hour API.")                         
+        return None                                                              
+    elif status_code == 404:                                                  
+        print("ERROR: A parameter in the request does not exist in the service "                                      
+              "database. This most likely means that the zip code you entered "                                      
+              "does not exist. Please go to settings and ensure that the zipcode "                                      
+              "you enter is correct and exists.")                                     
+        return None                                                                 
+    elif status_code == 429:                                                  
+        print("ERROR: It appears the key quota has been exceeded for this API. "                                     
+              "Please try your request again later.")                                    
+        return None                                                                 
+    elif status_code >= 500:                                                  
+        print("ERROR: This is most likely caused by an internal error. Please "                                    
+              "consider conatcting OpenWeather and enclosing the API key causing "                                    
+              "this issue.")                                                    
+        return None
+
+           
 def fetch_weather(settings):
     """Fetch current weather from OpenWeatherMap based on zip code"""                                                                     
     weather_address = f"https://api.openweathermap.org/data/2.5/weather?zip={settings["zip_code"]},us&appid={settings["API_KEY"]}&units=imperial"
-    r = requests.get(weather_address)                                           
-    weather_dict = r.json()
-    weather_data_list = [weather_dict]
-    print_weather(weather_data_list)
+    r = requests.get(weather_address) 
+    verified = verify_response(r.status_code)
+    if verified:                         
+        weather_dict = r.json()
+        weather_data_list = [weather_dict]
+        print_weather(weather_data_list)
+
 
 def fetch_forecast(settings):
     """Fetch 5 day, 3 hour forecast from OpeWeatherMap based on zip code"""
     forecast_address = f"https://api.openweathermap.org/data/2.5/forecast?zip={settings["zip_code"]},us&appid={settings["API_KEY"]}&units=imperial"
     r = requests.get(forecast_address)
-    forecast_dict = r.json()
-    weather_data_list = forecast_dict['list']
-    initial_size = len(weather_data_list)
-    prompt = "Do you want to select a particular date?"
-    prompt += "\nEnter 'y' for yes, anything else to print all forecast data: "
-    refine_date(weather_data_list, prompt)
-    print_weather(weather_data_list)
-
+    verified = verify_response(r.status_code)
+    if verified:
+        forecast_dict = r.json()
+        weather_data_list = forecast_dict['list']
+        initial_size = len(weather_data_list)
+        prompt = "Do you want to select a particular date?"
+        prompt += "\nEnter 'y' for yes, anything else to print all forecast data: "
+        refine_date(weather_data_list, prompt)
+        print_weather(weather_data_list)
 
 
 def refine_date(weather_data_list, prompt):

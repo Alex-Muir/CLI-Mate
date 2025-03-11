@@ -9,7 +9,6 @@ def main():
 
     while True:
         h.print_menu()
-
         choice = input("\nWhat would you like to to? ")
         
         if choice == '1':
@@ -19,8 +18,9 @@ def main():
         elif choice == '3':
             h.fetch_weather(settings)
         elif choice == '4':
-            print("Choice 4")
             h.fetch_forecast(settings)
+        elif choice == '5':
+            print(f"Choice: {choice}")
         elif choice == '6':
             break
         else:
