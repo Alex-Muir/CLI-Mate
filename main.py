@@ -21,6 +21,7 @@ def main():
             h.fetch_forecast(settings)
         elif choice == '5':
             print(f"Choice: {choice}")
+            h.weather_by_city(settings)
         elif choice == '6':
             break
         else:

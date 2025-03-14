@@ -4,6 +4,7 @@ from datetime import datetime
 import time
 
 FILENAME = 'settings.json'
+CITY_FILE = 'city.list.json'
 
 def print_menu():
     """Print user menu"""
@@ -87,35 +88,89 @@ def verify_response(status_code):
     """
 
     if status_code == 200:                                                    
-        return 200                                                        
+        return True                                                        
     elif status_code == 400:                                                  
-        print("ERROR: It is possible that some of the required parameters for " 
-              "the request are missing. Please go to settings and re-enter your "
-              "zipcode.")                                                       
-        return None                                                                  
+        print("""
+        ERROR: It is possible that some of the required parameters for the request 
+        are missing. Please go to settings and re-enter your zipcode.
+        """)                                                                                                                         
     elif status_code == 401:                                                  
-        print("ERROR: There is an issue with the API Key. It is either incorrect "
-              "or the key that was entered does not give access to the API for "
-              "this application. Either re-enter the key in settings, or verify "
-              "that the key you have entered gives access to OpenWeatherMap's " 
-              "Current Weather and 5 day, 3 hour API.")                         
-        return None                                                              
+        print("""
+        ERROR: There is an issue with the API Key. It is either incorrect or the 
+        key that was entered does not give access to the API for this application. 
+        Either re-enter the key in settings, or verify that the key you have 
+        entered gives access to OpenWeatherMap's Current Weather and 5 day, 3 
+        hour API.
+        """)                                       
     elif status_code == 404:                                                  
-        print("ERROR: A parameter in the request does not exist in the service "                                      
-              "database. This most likely means that the zip code you entered "                                      
-              "does not exist. Please go to settings and ensure that the zipcode "                                      
-              "you enter is correct and exists.")                                     
-        return None                                                                 
+        print("""
+        ERROR: A parameter in the request does not exist in the service database. 
+        This most likely means that the zip code you entered does not exist. 
+        Please go to settings and ensure that the zipcode you enter is correct 
+        and exists.
+        """)    
     elif status_code == 429:                                                  
-        print("ERROR: It appears the key quota has been exceeded for this API. "                                     
-              "Please try your request again later.")                                    
-        return None                                                                 
+        print("""
+        ERROR: It appears the key quota has been exceeded for this API. Please 
+        try your request again later.
+        """)                                                                                                     
     elif status_code >= 500:                                                  
-        print("ERROR: This is most likely caused by an internal error. Please "                                    
-              "consider conatcting OpenWeather and enclosing the API key causing "                                    
-              "this issue.")                                                    
-        return None
+        print("""
+        ERROR: This is most likely caused by an internal error. Please consider 
+        conatcting OpenWeather and enclosing the API key causing this issue.
+        """)                                                    
 
+    return False
+
+
+def same_name_cities(city_input):
+    """
+    Check to see if there are multiple cities in the database with the same name
+    as the city the user entered. If there are any matches put them in a list 
+    and return it. This could return an empty list, a list with one item, or a 
+    list with multiple items
+    """
+    same_name_list = None
+    try:
+        with open(CITY_FILE, 'r') as f:
+            city_list = json.load(f)
+    except FileNotFoundError:
+        print("File Not Found: There may be an issue if there are multiple cities witht the same name.")
+    else:
+        same_name_list = [city for city in city_list if city["name"] == city_input]
+        #print(same_name_list) 
+    return same_name_list
+
+
+def verify_city_choice(city_list):
+    """
+    If there were multiple cities with the same name display them for the user
+    and prompt them to pick a city. Return the item of the list that the user 
+    selects. The item will be a dictionary of non-weather information about the
+    city
+    """
+    print("There are multiple cities matching you input.")
+
+    for i, city in enumerate(city_list, start=1):
+        print(f"Enter {i} for:")   
+        print(f"\tCity: {city["name"]}")
+        if city.get("state"):
+            print(f"\tState: {city["state"]}")
+        print(f"\tCountry: {city["country"]}\n")
+    
+    choice = -1
+    while True:
+        try:
+            choice = int(input("Please select a city: "))
+        except ValueError:
+            print("Please enter a number.")
+        else:
+            if choice < 1 or choice > len(city_list):
+                print("Please enter a valid choice")
+            else:
+                break
+    return city_list[choice-1]
+        
            
 def fetch_weather(settings):
     """Fetch current weather from OpenWeatherMap based on zip code"""                                                                     
@@ -142,6 +197,32 @@ def fetch_forecast(settings):
         refine_date(weather_data_list, prompt)
         print_weather(weather_data_list)
 
+
+def weather_by_city(settings):
+    """Attempt to get the weather of a particular city entered by the user"""
+    city = input("Enter city name: ").strip().title()
+
+    city_list = same_name_cities(city)
+    print(city_list)
+    
+    city_choice_dict = None
+    if len(city_list) > 1:
+        city_choice_dict = verify_city_choice(city_list)
+
+    #print(city)
+    city_address = f"https://api.openweathermap.org/data/2.5/weather?q={city}"
+    if city_choice_dict:
+        if city_choice_dict.get("state"):
+            city_address += f",{city_choice_dict["state"]}"
+        city_address += f",{city_choice_dict["country"]}"
+    city_address += f"&appid={settings["API_KEY"]}&units=imperial"
+    r = requests.get(city_address)
+    verified = verify_response(r.status_code)
+    if verified:
+        city_dict = r.json()
+        #print(city_dict)
+        weather_data_list = [city_dict]
+        print_weather(weather_data_list) 
 
 def refine_date(weather_data_list, prompt):
     """
@@ -202,7 +283,8 @@ def get_sunset(data):
         return None                                                             
                                                                                 
     readable_sunset = datetime.fromtimestamp(sunset_unix_UTC).time()          
-    return readable_sunset  
+    return readable_sunset
+  
 
 def print_weather(weather_data_list):
     """Take relevant information from data returned by the API and print it"""
