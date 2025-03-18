@@ -29,17 +29,22 @@ def print_info():
 
     Running CLI-Mate for the first time will automatically take you to Settings.
     Here you are greeted by a simple menu which allows you to enter you API key
-    or your zipcode. This information can be changed any time.
+    or your zipcode. This information can be changed any time. If nothing is 
+    you will receive an error with suggestions on how to fix the problem. 
 
     Once this information is entered you are ready to quickly get weather data 
     from anywhere in the United States.
+
+    
+    
     """)
 
 
-def print_weather(weather_data_list):
+def print_weather(weather_data_list, name=""):
     """Take relevant information from data returned by the API and print it"""
     
     for data in weather_data_list:
+
         # Get weather description
         weather_list = data['weather']
         weather_desc = weather_list[0]['description']
@@ -54,6 +59,8 @@ def print_weather(weather_data_list):
         feels_like = temp_dict['feels_like']
         min_temp = temp_dict['temp_min']
         max_temp = temp_dict['temp_max']
+        min_var = current_temperature - min_temp
+        max_var = max_temp - current_temperature
 
         # Get sunrise and sunset times  
         readable_sunrise = helpers.get_sunrise(data)
@@ -67,42 +74,55 @@ def print_weather(weather_data_list):
             rainfall = rain.get('1h')
             if rainfall is None:
                 rainfall = rain.get('3h')
-            
+        
+        snowfall = None                                                         
+        snow = data.get('snow')                                                 
+                                                                             
+        if snow:                                                                
+            snowfall = snow.get('1h')                                           
+            if snowfall is None:                                                
+                snowfall = snow.get('3h')     
 
         # Get humidity and visability
         humidity = temp_dict['humidity']
-        visibility = data['visibility']
+        visibility = data.get("visibility")
 
         # Get wind speed and direction
         wind_dict = data['wind']
         wind_speed = wind_dict['speed']
         wind_direction = wind_dict['deg']
-    
+
         # Get time of data calculation
         time_of_calc_unix_UTC = data['dt']
         readable_time_of_calc = datetime.fromtimestamp(time_of_calc_unix_UTC)
 
+        city_name = data.get("name")
+        if city_name is None:
+            city_name = name
+
         # Print everything
-        print(f"\nWeather for {readable_time_of_calc}")
+        print(f"\nWEATHER for {city_name.upper()} - {readable_time_of_calc}")
         print("-" * 29)
    
         print(f"Date: {datetime.today().date()}") 
         print(f"Description: {weather_desc}")
         print(f"Current Temperature: {current_temperature}")
         print(f"Feels Like: {feels_like}")
-        print(f"Min Temperature: {min_temp}")
-        print(f"Max Temperature: {max_temp}")
+        print(f"Temperature Variance: +{round(max_var, 1)}, -{round(min_var, 1)}")
+        #print(f"Min Temperature: {min_temp}")
+        #print(f"Max Temperature: {max_temp}")
         print(f"Humidity: {humidity}%")
         print(f"Wind Speed: {wind_speed}mph")
-        print(f"Wind Direction: {wind_direction}")
+        print(f"Wind Direction: {helpers.calculate_wind_direction(wind_direction)}")
         if rainfall:
             print(f"Rainfall: {rainfall}mm/h")
+        if snowfall:
+            print(f"Snowfall: {snowfall}mm/h")
         print(f"Cloud Coverage: {cloud_coverage}%")
-        print(f"Visibility: {visibility/1000.0}km")
+        if visibility:
+            print(f"Visibility: {visibility/1000.0}km")
         if readable_sunrise:
             print(f"Sunrise: {readable_sunrise}")
         if readable_sunset:
             print(f"Sunset: {readable_sunset}")
-        print(f"\nTime of Data Calculation: {readable_time_of_calc}")
-
         print("-" * 29)

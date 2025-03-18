@@ -12,7 +12,7 @@ def main():
 
     while True:
         ui_helpers.print_menu()
-        choice = input("\nWhat would you like to to? ")
+        choice = input("\nWhat would you like to to? ").strip()
         
         if choice == '1':
             ui_helpers.print_info()
@@ -23,7 +23,6 @@ def main():
         elif choice == '4':
             fetch.fetch_forecast(settings)
         elif choice == '5':
-            print(f"Choice: {choice}")
             fetch.weather_by_city(settings)
         elif choice == '6':
             break

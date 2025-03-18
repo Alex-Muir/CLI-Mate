@@ -5,24 +5,31 @@ import json
 FILENAME = 'settings.json'
 
 def set_settings(settings):
-    """Display menu options for settings. Take user input for settings and save"""                               
-    while True:                                                                 
-        print("(1) Enter an API key\n(2) Enter your zip code\n(3) Exit")        
-        choice = input("What would you like to do? ")                           
+    """Display menu options for settings. Take user input for settings and save"""
+
+    while True:
+        print("\nSettings")                                                                 
+        print("""
+    (1) Enter an API key
+    (2) Enter your zip code
+    (3) Exit\n""")        
+        choice = input("What would you like to do? ").strip()                           
         if choice == '1':                                                       
-            settings["API_KEY"] = input("Enter your API key: ")                 
+            settings["API_KEY"] = input("Enter your API key: ").strip()                
         elif choice == '2':                                                     
-            settings["zip_code"] = input("Enter your zip code: ")               
-        elif choice == '3':                                             
+            settings["zip_code"] = input("Enter your zip code: ").strip()               
+        elif choice == '3':
+            save_settings(settings)                                             
             break                                                               
         else:                                                                   
-            print("Please enter a valid selection")  
-                                                                                  
+            print("Please enter a valid selection")
+  
     return settings
 
 
 def save_settings(settings):
-    """Save user settings to a text file in json format""" 
+    """Save user settings to a text file in json format"""
+ 
     try:                                                                        
         with open(FILENAME, 'w') as f:                                          
             json.dump(settings, f)                                              
@@ -42,6 +49,6 @@ def load_settings():
         print("It seems that setting have not been entered. Please enter them now.")
         default_settings = {"API_KEY": "", "zip_code": ""}                      
         settings = set_settings(default_settings)
-        save_settings(settings)   
-    print(settings)                                              
+        save_settings(settings)
+                                                 
     return settings
