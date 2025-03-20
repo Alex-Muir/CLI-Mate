@@ -12,7 +12,7 @@ def print_menu():
     (2) Settings
     (3) Get Weather
     (4) Get Forecast
-    (5) Search by City
+    (5) Weather by City
     (6) Exit""")
 
 
@@ -28,15 +28,50 @@ def print_info():
     'API Keys'tab.
 
     Running CLI-Mate for the first time will automatically take you to Settings.
-    Here you are greeted by a simple menu which allows you to enter you API key
+    Here you are greeted by a simple menu which allows you to enter your API key
     or your zipcode. This information can be changed any time. If nothing is 
     you will receive an error with suggestions on how to fix the problem. 
 
-    Once this information is entered you are ready to quickly get weather data 
-    from anywhere in the United States.
+    Once this information is entered CLI-Mate is ready to fetch weather data 
+    based on your desired location.  
 
-    
-    
+    GET WEATHER:
+        CLI-Mate's most simple option is fetching the current weather based on 
+        the zipcode you entered in settings. The weather is updated every 10 
+        minutes.
+
+    GET FORECAST:
+        CLI-Mate also uses OpenWeather's 5 day, 3 hour forecast to give you up
+        to 40 different forecasts (the forecast reports weather at 3 hour
+        intervals for 5 24 hour periods) based on your zipcode. When selecting 
+        this option you will be prompted to select the desired forecast for a 
+        particular day or print all the available forecasts.
+
+    WEATHER BY CITY:
+        CLI-Mate has the option to get the current weather anywhere in the world
+        that is in OpenWeather's database. When selecting this option you will 
+        be prompted to enter a city. If the name of the city entered has multiple 
+        matches in different countries or U.S. states you  will be promted to
+        select the desired city from a list of possible options.
+
+    A Note About Output:
+        All output is currently in imperial measurments, except for visibility, 
+        which is only available in metric. 
+
+        Some output only appears when it is relevant to the weather. For example, 
+        rain and snow will not appear in the output if it is not raining or 
+        snowing, or none is predicted. 
+
+        Temperature Variance is the difference in possible temperatures for the 
+        given area at the time of the last update. Often when using the 'Get 
+        Forecast' option temperature variance is not updated which gives the 
+        output of +0.0 and -0.0. 
+
+        Lastly, Sunrise and Sunset does not appear in the output for the 'Get 
+        Forecast'.
+
+    Bugs:
+        Please report bugs at https://github.com/Alex-Muir/CLI-Mate/issues
     """)
 
 
