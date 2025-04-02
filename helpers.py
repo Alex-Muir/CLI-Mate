@@ -61,7 +61,7 @@ def same_name_cities(city_input):
     
     # Attempt to open the file containing all the city information for the API
     try:
-        with open(CITY_FILE, 'r') as f:
+        with open(CITY_FILE, 'r', encoding="utf-8") as f:
             city_list = json.load(f)
     except FileNotFoundError:
         print("File Not Found: There may be an issue if there are multiple cities witht the same name.")

@@ -31,8 +31,8 @@ def save_settings(settings):
     """Save user settings to a text file in json format"""
  
     try:                                                                        
-        with open(FILENAME, 'w') as f:                                          
-            json.dump(settings, f)                                              
+        with open(FILENAME, 'w', encoding="utf-8") as f:                                          
+            json.dump(settings, f, ensure_ascii=False)                                              
     except FileNotFoundError:                                                   
         print("There is an issue with the file")                                
     else:                                                                       
@@ -43,7 +43,7 @@ def load_settings():
     """Load user settings from text file and store them in a dictionary"""
     
     try:                                                                        
-        with open(FILENAME, 'r') as f:                                          
+        with open(FILENAME, 'r', encoding="utf-8") as f:                                          
             settings = json.load(f)                                             
     except FileNotFoundError:                      
         print("It seems that setting have not been entered. Please enter them now.")
