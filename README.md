@@ -85,7 +85,11 @@ Temperature Variance is the difference in possible temperatures for the given
 area at the time of the last update. Often when using the 'Get Forecast' option 
 temperature variance is not updated which gives the output of +0.0 and -0.0. 
         
-Lastly, Sunrise and Sunset does not appear in the output for the 'Get Forecast'.   
+Sunrise and Sunset does not appear in the output for the 'Get Forecast'. 
+
+Currently, when searching for weather by city name, the sunrise and sunset time
+is given in local time. It is not converted to the time zone where the city is 
+located.  
 
 ## Bugs
 Please report bugs at https://github.com/Alex-Muir/CLI-Mate/issues
