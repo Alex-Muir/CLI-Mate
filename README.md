@@ -40,7 +40,7 @@ If encountering permission issues on Windows try opening the shell and administr
 CLI-Mate uses an OpenWeather API to fetch weather data. A key can be generated 
 by simply signing up at (https://home.openweathermap.org/users/sign_up). It is free
 and automatically gives you an API key for current weather and 5 day forecasts.
-Once the account is created a key should be emailed to you, and can alo be found
+Once the account is created a key should be emailed to you, and can also be found
 under the 'API Keys' tab in your profile at openweathermap.org
 
 
@@ -89,7 +89,24 @@ Sunrise and Sunset does not appear in the output for the 'Get Forecast'.
 
 Currently, when searching for weather by city name, the sunrise and sunset time
 is given in local time. It is not converted to the time zone where the city is 
-located.  
+located. 
+
+## Images
+### Main Menu
+![Screenshot of the main menu](images/main_menu.png)
+
+### Settings
+![Screenshot of settings menu](images/settings.png)
+
+### Output
+![Screenshot of output](images/output_by_zip.png)
+
+### Forecast
+![Screenshot of forecast menu](images/forecast.png)
+
+### Weather by city
+![Screenshot of weather by city output](images/weather_by_city.png)
+
 
 ## Bugs
 Please report bugs at https://github.com/Alex-Muir/CLI-Mate/issues
